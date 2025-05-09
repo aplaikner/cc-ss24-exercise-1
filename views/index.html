@@ -73,10 +73,10 @@
   </tr>
   {{ range . }}
   <tr id="row-{{ .ID }}">
-    <th> {{ .BookName }} </th>
-    <th> {{ .BookAuthor }} </th>
-    <th> {{ .BookEdition }} </th>
-    <th> {{ .BookPages }} </th>
+    <th> {{ .title }} </th>
+    <th> {{ .author}} </th>
+    <th> {{ .edition }} </th>
+    <th> {{ .pages }} </th>
   </tr>
   {{ end }}
 </table>
@@ -90,8 +90,8 @@
   </tr>
   {{ range . }}
   <tr>
-    <th> {{ .BookAuthor }} </th>
-    <th> {{ .BookName }} </th>
+    <th> {{ .author }} </th>
+    <th> {{ .title }} </th>
   </tr>
   {{ end }}
 </table>
@@ -105,8 +105,8 @@
   </tr>
   {{ range . }}
   <tr>
-    <th> {{ .BookYear }} </th>
-    <th> {{ .BookName }} </th>
+    <th> {{ .year }} </th>
+    <th> {{ .title }} </th>
   </tr>
   {{ end }}
 </table>
