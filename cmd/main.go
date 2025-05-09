@@ -23,7 +23,7 @@ import (
 // More on these "tags" like `bson:"_id,omitempty"`: https://go.dev/wiki/Well-known-struct-tags
 type BookStore struct {
 	MongoID     primitive.ObjectID `bson:"_id,omitempty"`
-	ID          string
+	ID          string             `bson:"bookID,omitempty"`
 	BookName    string
 	BookAuthor  string
 	BookEdition string
@@ -178,6 +178,16 @@ func findAllBooks(coll *mongo.Collection) []map[string]interface{} {
 	return ret
 }
 
+func deleteBookByID(coll *mongo.Collection, id string) error {
+	filter := bson.M{"bookID": id}
+	_, err := coll.DeleteOne(context.TODO(), filter)
+	if err != nil {
+		print("Error during deletion: %v\n", err)
+		return err
+	}
+	return nil
+}
+
 func main() {
 	// Connect to the database. Such defer keywords are used once the local
 	// context returns; for this case, the local context is the main function
@@ -255,6 +265,16 @@ func main() {
 	e.GET("/api/books", func(c echo.Context) error {
 		books := findAllBooks(coll)
 		return c.JSON(http.StatusOK, books)
+	})
+
+	e.DELETE("/api/books/:id", func(c echo.Context) error {
+		passed_id := c.Param("id")
+		print(passed_id)
+		err := deleteBookByID(coll, passed_id)
+		if err != nil {
+			return c.NoContent(http.StatusNotFound)
+		}
+		return c.NoContent(http.StatusNotFound)
 	})
 
 	// We start the server and bind it to port 3030. For future references, this
