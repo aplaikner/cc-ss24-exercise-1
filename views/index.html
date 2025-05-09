@@ -22,7 +22,7 @@
     <div hx-get="/authors" hx-trigger="click" hx-target="#page-content" class="p-pointer">
       <span style="padding: 8px 0px; display: block;">Authors</span>
     </div>
-    <div hx-get="/years" hx-trigger="click" class="p-pointer">
+    <div hx-get="/years" hx-trigger="click" hx-target="#page-content" class="p-pointer">
       <span style="padding: 8px 0px; display: block;">Years</span>
     </div>
     <div hx-get="/search" hx-trigger="click" hx-target="#page-content" class="p-pointer">
@@ -91,6 +91,21 @@
   {{ range . }}
   <tr>
     <th> {{ .BookAuthor }} </th>
+    <th> {{ .BookName }} </th>
+  </tr>
+  {{ end }}
+</table>
+{{ end }}
+
+{{ block "year-table" . }}
+<table>
+  <tr>
+    <th>Year</th>
+    <th>Book Name</th>
+  </tr>
+  {{ range . }}
+  <tr>
+    <th> {{ .BookYear }} </th>
     <th> {{ .BookName }} </th>
   </tr>
   {{ end }}
