@@ -22,13 +22,13 @@ import (
 // frontend or the database
 // More on these "tags" like `bson:"_id,omitempty"`: https://go.dev/wiki/Well-known-struct-tags
 type BookStore struct {
-	MongoID     primitive.ObjectID `bson:"_id,omitempty"`
-	ID          string             `bson:"bookID,omitempty"`
-	BookName    string
-	BookAuthor  string
-	BookEdition string
-	BookPages   string
-	BookYear    string
+	MongoID     primitive.ObjectID `bson:"_id,omitempty" json:"_id,omitempty"`
+	ID          string             `bson:"bookID,omitempty" json:"id"`
+	BookName    string             `json:"title"`
+	BookAuthor  string             `json:"author"`
+	BookEdition string             `json:"edition"`
+	BookPages   string             `json:"pages"`
+	BookYear    string             `json:"year"`
 }
 
 // Wraps the "Template" struct to associate a necessary method
@@ -188,6 +188,30 @@ func deleteBookByID(coll *mongo.Collection, id string) error {
 	return nil
 }
 
+func existsBook(coll *mongo.Collection, book BookStore) bool {
+	filter := bson.M{
+		"bookID":      book.ID,
+		"bookname":    book.BookName,
+		"bookauthor":  book.BookAuthor,
+		"bookedition": book.BookEdition,
+		"bookpages":   book.BookPages,
+		"bookyear":    book.BookYear,
+	}
+	count, err := coll.CountDocuments(context.TODO(), filter)
+	if err == nil {
+		return count > 0
+	} else {
+		return true
+	}
+
+}
+
+func addBook(coll *mongo.Collection, book BookStore) error {
+	_, err := coll.InsertOne(context.TODO(), book)
+	print(err)
+	return err
+}
+
 func main() {
 	// Connect to the database. Such defer keywords are used once the local
 	// context returns; for this case, the local context is the main function
@@ -269,12 +293,30 @@ func main() {
 
 	e.DELETE("/api/books/:id", func(c echo.Context) error {
 		passed_id := c.Param("id")
-		print(passed_id)
 		err := deleteBookByID(coll, passed_id)
 		if err != nil {
 			return c.NoContent(http.StatusNotFound)
 		}
 		return c.NoContent(http.StatusNotFound)
+	})
+
+	e.POST("/api/books", func(c echo.Context) error {
+		var newBook BookStore
+		if err := c.Bind(&newBook); err != nil {
+			print("Error during book object creation!")
+			return c.NoContent(http.StatusBadRequest)
+		}
+		if existsBook(coll, newBook) {
+			print("Book already exists!")
+			return c.NoContent(http.StatusConflict)
+		} else {
+			if err := addBook(coll, newBook); err == nil {
+				return c.NoContent(http.StatusOK)
+			} else {
+				return c.NoContent(http.StatusBadRequest)
+			}
+		}
+
 	})
 
 	// We start the server and bind it to port 3030. For future references, this
