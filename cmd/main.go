@@ -166,7 +166,7 @@ func findAllBooks(coll *mongo.Collection) []map[string]interface{} {
 	var ret []map[string]interface{}
 	for _, res := range results {
 		ret = append(ret, map[string]interface{}{
-			"id":      res.MongoID.Hex(),
+			"id":      res.ID,
 			"title":   res.BookName,
 			"author":  res.BookAuthor,
 			"pages":   res.BookPages,
