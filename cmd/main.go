@@ -297,7 +297,7 @@ func main() {
 		if err != nil {
 			return c.NoContent(http.StatusNotFound)
 		}
-		return c.NoContent(http.StatusNotFound)
+		return c.NoContent(http.StatusOK)
 	})
 
 	e.POST("/api/books", func(c echo.Context) error {
