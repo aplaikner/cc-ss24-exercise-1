@@ -316,6 +316,28 @@ func main() {
 				return c.NoContent(http.StatusBadRequest)
 			}
 		}
+	})
+
+	e.PUT("/api/books/:id", func(c echo.Context) error {
+		id := c.Param("id")
+		err := deleteBookByID(coll, id)
+		if err != nil {
+			return c.NoContent(http.StatusBadRequest)
+		}
+
+		var newBook BookStore
+		if err := c.Bind(&newBook); err != nil {
+			print("Error during book object update!")
+			return c.NoContent(http.StatusBadRequest)
+		}
+		newBook.ID = id
+
+		err = addBook(coll, newBook)
+		if err != nil {
+			return c.NoContent(http.StatusBadRequest)
+		}
+
+		return c.NoContent(http.StatusOK)
 
 	})
 
