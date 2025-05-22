@@ -3,10 +3,12 @@ package main
 import (
 	"context"
 	"fmt"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"html/template"
 	"io"
 	"log"
 	"net/http"
+	"os"
 	"slices"
 	"time"
 
@@ -220,16 +222,24 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	// TODO: make sure to pass the proper username, password, and port
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:27017"))
+	uri := os.Getenv("DATABASE_URI")
+	if len(uri) == 0 {
+		fmt.Printf("failure to load env variable\n")
+		os.Exit(1)
+	}
 
-	// This is another way to specify the call of a function. You can define inline
-	// functions (or anonymous functions, similar to the behavior in Python)
-	defer func() {
-		if err = client.Disconnect(ctx); err != nil {
-			panic(err)
-		}
-	}()
+	// TODO: make sure to pass the proper username, password, and port
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
+	if err != nil {
+		fmt.Printf("failed to create client for MongoDB\n")
+		os.Exit(1)
+	}
+
+	err = client.Ping(ctx, readpref.Primary())
+	if err != nil {
+		fmt.Printf("failed to connect to MongoDB, please make sure the database is running\n")
+		os.Exit(1)
+	}
 
 	// You can use such name for the database and collection, or come up with
 	// one by yourself!
